@@ -38,6 +38,14 @@
 
 // #define TIME_RAMP 0
 
+
+typedef struct VA VA;
+struct VA
+{
+  double m_speed;
+  double m_acceleration;
+};
+
 class Characterization
 {
 public:
