@@ -2,7 +2,7 @@
 
 
 double Joystick::getY(){
-    return m_driverController.getY(frc::GenericHID::JoystickHand::kLeftHand);
+    return m_driverController.GetY(frc::GenericHID::JoystickHand::kLeftHand);
 }
 
 bool Joystick::getBButtonPressed(){
@@ -10,7 +10,7 @@ bool Joystick::getBButtonPressed(){
 }
 
 double Joystick::getX(){
-    return m_driverController.getX(frc::GenericHID::JoystickHand::kRightHand);
+    return m_driverController.GetX(frc::GenericHID::JoystickHand::kRightHand);
 }
 
 void Joystick::getSpeedsAndAccelerations(VA *pva_left, VA *pva_right, const VA *pvamax, const double jx, const double jy)
@@ -107,4 +107,16 @@ void Joystick::getSpeedsAndAccelerations(VA *pva_left, VA *pva_right, const VA *
         pva_right->m_acceleration = 0;
     }
     std::cout << "vitesse : " << pva_right->m_speed << "   " << pva_left->m_speed << std::endl;
+}
+
+bool Joystick::getXButtonPressed(){
+    return m_driverController.GetXButtonPressed();
+}
+
+bool Joystick::getAButtonPressed(){
+    return m_driverController.GetAButtonPressed();
+}
+
+bool Joystick::getYButtonPressed(){
+    return m_driverController.GetYButtonPressed();
 }

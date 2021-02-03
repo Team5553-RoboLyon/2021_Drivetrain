@@ -2,6 +2,7 @@
 
 #include <rev/CANSparkMax.h>
 #include <frc/Encoder.h>
+#include <assert.h>
 
 typedef struct VA VA;
 struct VA
@@ -18,9 +19,15 @@ class Gearbox
     void disableVoltageCompensation();
     void setIdleMode(rev::CANSparkMax::IdleMode mode);
     void setInverted(bool invertion);
-    Gearbox(int moteur1ID, int moteur2ID, unsigned int encodeurChannelA, unsigned int encodeurChannelB, bool isInverted, bool isLeft);
+    Gearbox(int moteur0ID, int moteur1ID, unsigned int encodeurChannelA, unsigned int encodeurChannelB, bool isInverted, bool isLeft);
     void setMotorCoefficients(uint isBackward);
-    void setSpeed(VA *va);
+    void setSpeed(VA va);
+    double getBusVoltage(int moteurID);
+    double getAppliedOutput(int moteurID);
+    double getExternalEncoderDistance();
+    double getInternalEncoderPosition(int moteurID);
+    double getOutputCurrent(int moteurID);
+    void externalEncoderReset();
 
   private:
 
@@ -31,14 +38,14 @@ class Gearbox
 
       bool m_isLeft;
 
+      int m_moteur0ID;
       int m_moteur1ID;
-      int m_moteur2ID;
 
       KineticToVoltage m_kv;
+      rev::CANSparkMax m_moteur0;
       rev::CANSparkMax m_moteur1;
-      rev::CANSparkMax m_moteur2;
+      rev::CANEncoder m_encodeur0;
       rev::CANEncoder m_encodeur1;
-      rev::CANEncoder m_encodeur2;
       frc::Encoder m_encodeurExterne;
 
   };
@@ -51,6 +58,7 @@ class KineticToVoltage
   double k_lut[4][2][3];
 
 public:
-  void SetMotorCoefficients(uint motorID, uint isBackward, double kv, double ka, double vintersept);
+  //void SetMotorCoefficients(uint motorID, uint isBackward, double kv, double ka, double vintersept);
+  void setMotorCoefficients(uint motorID, uint isBackward, double kv, double ka, double vintersept);
   double getVoltage(uint motorID, const VA *pva);
 };

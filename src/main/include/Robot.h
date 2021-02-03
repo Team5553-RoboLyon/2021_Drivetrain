@@ -15,8 +15,8 @@
 #include "lib/CSVLogFile.h"
 #include "lib/Utils.h"
 #include "lib/CustomMaths.h"
-#include "subsystems/Tests.h"
 #include "subsystems/Joystick.h"
+#include "lib/Characterization.h"
 
 
 #define rightInverte true
@@ -55,12 +55,12 @@ class Robot : public frc::TimedRobot {
   VA m_va_right;
   VA m_va_max;
 
-  CSVLogFile *m_LogFile, *m_LogFileDriving;
+  // CSVLogFile *m_LogFile, *m_LogFileDriving;
 
-  Gearbox m_gearboxGauche{leftMotor, leftMotorFollower, leftEncoderChannelA, leftEncoderChannelB, leftInverte};
-  Gearbox m_gearboxDroite{rightMotor, rightMotorFollower, rightEncoderChannelA, rightEncoderChannelB, rightInverte};
+  Gearbox m_gearboxGauche{leftMotor, leftMotorFollower, leftEncoderChannelA, leftEncoderChannelB, leftInverte, true};
+  Gearbox m_gearboxDroite{rightMotor, rightMotorFollower, rightEncoderChannelA, rightEncoderChannelB, rightInverte, false};
 
-  nt::NetworkTableEntry m_LogFilename, m_PowerEntry, m_logGyro, m_LogFilenameDriving;
+  nt::NetworkTableEntry m_PowerEntry, m_logGyro;
 
   frc::ADXRS450_Gyro m_gyro{frc::SPI::Port::kOnboardCS0};//gyro definition
 
@@ -71,5 +71,5 @@ class Robot : public frc::TimedRobot {
   double m_ramp = 0;
   double m_time0;
 
-  Tests tests;
+  Characterization characterization;
 };

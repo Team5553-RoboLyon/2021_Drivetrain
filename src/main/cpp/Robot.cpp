@@ -58,14 +58,13 @@ void Robot::RobotInit()
     m_gyro.Calibrate();
 
     m_PowerEntry = frc::Shuffleboard::GetTab("voltage").Add("Voltage", 0.0).WithWidget(frc::BuiltInWidgets::kTextView).GetEntry();
-    m_LogFilename = frc::Shuffleboard::GetTab("voltage").Add("Logfile Name", "").WithWidget(frc::BuiltInWidgets::kTextView).GetEntry();
     frc::Shuffleboard::GetTab("voltage").Add(m_gyro).WithWidget(frc::BuiltInWidgets::kGyro);
 
     m_gearboxDroite.setInverted(false);
     m_gearboxGauche.setInverted(true);
 
 
-    tests.initializeTestData();
+    characterization.initializeTestData();
 
 
     m_gearboxGauche.setMotorCoefficients(false);
@@ -125,12 +124,9 @@ void Robot::Drive(double jy, double jx)
     std::cout << jy << "       " << jx << std::endl;
 
     m_joystick.getSpeedsAndAccelerations(&m_va_left, &m_va_right, &m_va_max, jx, jy);
-    m_gearboxGauche.setSpeed(&m_va_left);
-    m_gearboxDroite.setSpeed(&m_va_right);
+    m_gearboxGauche.setSpeed(m_va_left);
+    m_gearboxDroite.setSpeed(m_va_right);
 }
-
-
-
 
 void Robot::TeleopPeriodic()
 {
@@ -138,31 +134,15 @@ void Robot::TeleopPeriodic()
 
     if (m_joystick.getBButtonPressed() && (!m_override))
     {
-        CurrentTestID += 1;
-        if (CurrentTestID < TEST_TOTAL_NB * 2)
-        {
-            messageTestEnAttente();
-        }
-        else
-        {
-            messageTestTousEffectues();
-        }
+        characterization.nextTest();
     }
 
-    if (m_driverController.GetXButtonPressed() && (!m_override))
+    if (m_joystick.getXButtonPressed() && (!m_override))
     {
-        CurrentTestID -= 1;
-        if (CurrentTestID < TEST_TOTAL_NB * 2)
-        {
-            messageTestEnAttente();
-        }
-        else
-        {
-            messageTestTousEffectues();
-        }
+        characterization.previousTest();
     }
 
-    if (m_driverController.GetAButtonPressed())
+    if (m_joystick.getAButtonPressed())
     {
         m_override = !m_override;
 
@@ -170,39 +150,11 @@ void Robot::TeleopPeriodic()
 
         if (m_override)
         {
-            if (CurrentTestID < TEST_TOTAL_NB * 2)
-            {
-                FLAG_ON(TestData[CurrentTestID].m_flags, FLAG_TestSpecs_Done);
-                messageTestEnCours();
-
-                char prefix[256];
-                if (TestData[CurrentTestID].m_voltage < 0)
-                {
-                    sprintf(prefix, "/home/lvuser/logs/-test_%d_%.2fvolts_", CurrentTestID, TestData[CurrentTestID].m_voltage);
-                }
-                else
-                {
-                    sprintf(prefix, "/home/lvuser/logs/+test_%d_%.2fvolts_", CurrentTestID, TestData[CurrentTestID].m_voltage);
-                }
-
-                m_LogFile = new CSVLogFile(prefix, "Right", "Left", "neoD1", "neoD2", "neoG1", "neoG2", "gyro", "Theorical Voltage", "BusVoltageD1", "BusVoltageD2", "BusVoltageG1", "BusVoltageG2", "AppliedOutputD1", "AppliedOutputD2", "AppliedOutputG1", "AppliedOutputG2", "currentD1", "currentD2", "currentG1", "currentG2", "rampActive");
-                m_LogFilename.SetString(m_LogFile->GetFileName());
-                m_encodeurExterneDroite.Reset();
-                m_encodeurExterneGauche.Reset();
-            }
+            characterization.stopTest(&m_gearboxGauche, &m_gearboxDroite);
         }
         else
         {
-            CurrentTestID += 1;
-            if (CurrentTestID < TEST_TOTAL_NB * 2)
-            {
-                delete m_LogFile;
-                messageTestEnAttente();
-            }
-            else
-            {
-                messageTestTousEffectues();
-            }
+            characterization.startTest();
         }
     }
 
@@ -217,15 +169,16 @@ void Robot::TeleopPeriodic()
             m_ramp = 0;
         }
         double md0, md1, mg0, mg1;
-        md0 = m_moteurDroite.GetBusVoltage() * m_moteurDroite.GetAppliedOutput();
-        md1 = m_moteurDroiteFollower.GetBusVoltage() * m_moteurDroiteFollower.GetAppliedOutput();
-        mg0 = m_moteurGauche.GetBusVoltage() * m_moteurGauche.GetAppliedOutput();
-        mg1 = m_moteurGaucheFollower.GetBusVoltage() * m_moteurGaucheFollower.GetAppliedOutput();
+        md0 = m_gearboxDroite.getBusVoltage(0) * m_gearboxDroite.getAppliedOutput(0);
+        md1 = m_gearboxDroite.getBusVoltage(1) * m_gearboxDroite.getAppliedOutput(1);
 
-        m_LogFile->Log(m_encodeurExterneDroite.GetDistance(), m_encodeurExterneGauche.GetDistance(), m_encodeurDroite1.GetPosition(), m_encodeurDroite2.GetPosition(), m_encodeurGauche1.GetPosition(), m_encodeurGauche2.GetPosition(), m_gyro.GetAngle(), TestData[CurrentTestID].m_voltage, m_moteurDroite.GetBusVoltage(), m_moteurDroiteFollower.GetBusVoltage(), m_moteurGauche.GetBusVoltage(), m_moteurGaucheFollower.GetBusVoltage(), m_moteurDroite.GetAppliedOutput(), m_moteurDroiteFollower.GetAppliedOutput(), m_moteurGauche.GetAppliedOutput(), m_moteurGaucheFollower.GetAppliedOutput(), m_moteurDroite.GetOutputCurrent(), m_moteurDroiteFollower.GetOutputCurrent(), m_moteurGauche.GetOutputCurrent(), m_moteurGaucheFollower.GetOutputCurrent(), m_ramp);
+        mg0 = m_gearboxGauche.getBusVoltage(0) * m_gearboxGauche.getAppliedOutput(0);
+        mg1 = m_gearboxGauche.getBusVoltage(1) * m_gearboxGauche.getAppliedOutput(1);
+
+        characterization.logData(&m_gearboxGauche, &m_gearboxDroite, &m_gyro, m_ramp);
     }
 
-    if (m_driverController.GetYButtonPressed())
+    if (m_joystick.getYButtonPressed())
     {
         m_isLogging = !m_isLogging;
 
@@ -233,60 +186,17 @@ void Robot::TeleopPeriodic()
 
         if (m_isLogging)
         {
-            m_LogFileDriving = new CSVLogFile("/home/lvuser/logs/freeRiding", "Right", "Left", "neoD1", "neoD2", "neoG1", "neoG2", "gyro", "Theorical Voltage", "BusVoltageD1", "BusVoltageD2", "BusVoltageG1", "BusVoltageG2", "AppliedOutputD1", "AppliedOutputD2", "AppliedOutputG1", "AppliedOutputG2", "currentD1", "currentD2", "currentG1", "currentG2", "rampActive");
-            m_LogFilenameDriving.SetString(m_LogFileDriving->GetFileName());
-            m_encodeurExterneDroite.Reset();
-            m_encodeurExterneGauche.Reset();
+            characterization.freeDriveLog(&m_gearboxGauche, &m_gearboxDroite);
         }
         else
         {
-            delete m_LogFileDriving;
+            characterization.deleteLogFileDriving();
         }
     }
 
     if (m_isLogging)
     {
-        m_LogFileDriving->Log(m_encodeurExterneDroite.GetDistance(), m_encodeurExterneGauche.GetDistance(), m_encodeurDroite1.GetPosition(), m_encodeurDroite2.GetPosition(), m_encodeurGauche1.GetPosition(), m_encodeurGauche2.GetPosition(), m_gyro.GetAngle(), TestData[CurrentTestID].m_voltage, m_moteurDroite.GetBusVoltage(), m_moteurDroiteFollower.GetBusVoltage(), m_moteurGauche.GetBusVoltage(), m_moteurGaucheFollower.GetBusVoltage(), m_moteurDroite.GetAppliedOutput(), m_moteurDroiteFollower.GetAppliedOutput(), m_moteurGauche.GetAppliedOutput(), m_moteurGaucheFollower.GetAppliedOutput(), m_moteurDroite.GetOutputCurrent(), m_moteurDroiteFollower.GetOutputCurrent(), m_moteurGauche.GetOutputCurrent(), m_moteurGaucheFollower.GetOutputCurrent(), m_ramp);
-    }
-
-    if (m_driverController.GetYButton())
-    {
-
-        m_moteurCoveyor.Set(1);
-        m_moteurFeeder.Set(1);
-    }
-    else
-    {
-        m_moteurCoveyor.Set(0);
-        m_moteurFeeder.Set(0);
-    }
-
-
-    if (m_driverController.GetPOV(0))
-    {
-        if (modeClimberJF)
-        {
-            m_moteurTreuil.Set(-0.3);
-        }
-        else
-        {
-            m_moteurTreuil.Set(0);
-        }
-    }
-    else if (m_driverController.GetPOV(90))
-    {
-        if (!modeClimberJF)
-        {
-            m_moteurTreuil.Set(0);
-        }
-    }
-    else if (m_driverController.GetPOV(180))
-    {
-        m_moteurTreuil.Set(0.3);
-    }
-    else
-    {
-        m_moteurTreuil.Set(0);
+        characterization.logData(&m_gearboxGauche, &m_gearboxDroite, &m_gyro, m_ramp);
     }
 }
 
