@@ -91,18 +91,14 @@ void Robot::TeleopInit()
     m_gearboxGauche.resetExternalEncodeur();
 }
 
-void Robot::TeleopPeriodic() {}
-
 void Robot::DisabledInit() {}
 
 void Robot::DisabledPeriodic() {}
 
 void Robot::TestInit() {}
 
-void Robot::TestPeriodic() {}
-
-Robot::Robot(){
-}
+// Robot::Robot(){
+// }
 
 #ifndef RUNNING_FRC_TESTS
 

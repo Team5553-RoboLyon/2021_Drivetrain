@@ -1,3 +1,5 @@
+#pragma once
+
 #include <frc/shuffleboard/Shuffleboard.h>
 #include "lib/CSVLogFile.h"
 #include "subsystems/Gearbox.h"
@@ -47,14 +49,6 @@
 
 // #define TIME_RAMP 0
 
-//struct for speed and acceleration
-typedef struct VA VA;
-struct VA
-{
-  double m_speed;
-  double m_acceleration;
-};
-
 
 //struct for the current state of the test
 typedef struct TestSpecs TestSpecs;
@@ -86,10 +80,9 @@ public:
     void logData(Gearbox *gearboxGauche, Gearbox *gearboxDroite, frc::ADXRS450_Gyro *gyro, double ramp);
     void deleteLogFileDriving();
     void freeDriveLog(Gearbox *gearboxGauche, Gearbox *gearboxDroite);
-    Characterization::Characterization();
+    Characterization();
 
 private:
-    typedef struct TestSpecs TestSpecs;
 
     TestSpecs TestData[TEST_TOTAL_NB * 2];
     int CurrentTestID = 0;

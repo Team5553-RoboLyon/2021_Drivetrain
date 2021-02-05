@@ -36,9 +36,12 @@ class CSVLogFile {
    * @param columnHeadings Titles of other CSVLogFile columns.
    */
   template <typename Value, typename... Values>
-  CSVLogFile(wpi::StringRef filePrefix, Value columnHeading,
+    CSVLogFile(wpi::StringRef filePrefix, Value columnHeading,
              Values... columnHeadings)
-      : m_logFile(filePrefix, "csv");
+      : m_logFile(filePrefix, "csv") {
+    m_logFile << "\"Timestamp (ms)\",";
+    LogValues(columnHeading, columnHeadings...);
+  }
   /**
    * Print a new line of values in the CSVLogFile.
    *

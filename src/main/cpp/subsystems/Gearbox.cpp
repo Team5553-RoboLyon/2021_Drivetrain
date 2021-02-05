@@ -10,19 +10,24 @@
 //     k_lut[motorID][isBackward][2] = vintersept;
 // }
 
-Gearbox::Gearbox(int moteur0ID, int moteur1ID, unsigned int encodeurChannelA, unsigned int encodeurChannelB, bool isInverted, bool isLeft)
-{
+// Gearbox::Gearbox(int moteur0ID, int moteur1ID, unsigned int encodeurChannelA, unsigned int encodeurChannelB, bool isInverted, bool isLeft)
+// {
     
-    // Motors and encoders of the gearbox declaration
-    rev::CANSparkMax m_moteur0{moteur0ID, rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax m_moteur1{moteur1ID, rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANEncoder m_encodeur0{m_moteur0};
-    rev::CANEncoder m_encodeur1{m_moteur1};
-    frc::Encoder m_encodeurExterne{encodeurChannelA, encodeurChannelB, isInverted, frc::Encoder::k2X};
+//     // Motors and encoders of the gearbox declaration
+//     rev::CANSparkMax m_moteur0{moteur0ID, rev::CANSparkMax::MotorType::kBrushless};
+//     rev::CANSparkMax m_moteur1{moteur1ID, rev::CANSparkMax::MotorType::kBrushless};
+//     rev::CANEncoder m_encodeur0{m_moteur0.GetEncoder()};
+//     rev::CANEncoder m_encodeur1{m_moteur1.GetEncoder()};
+//     frc::Encoder m_encodeurExterne{encodeurChannelA, encodeurChannelB, isInverted, frc::Encoder::k2X};
 
-    m_isLeft = isLeft;
-    m_moteur0ID = moteur0ID;
-    m_moteur1ID = moteur1ID;
+//     m_isLeft = isLeft;
+//     m_moteur0ID = moteur0ID;
+//     m_moteur1ID = moteur1ID;
+
+// }
+
+Gearbox::Gearbox()
+{
 
 }
 
@@ -72,9 +77,16 @@ void Gearbox::disableVoltageCompensation(){
     m_moteur1.DisableVoltageCompensation();
 }
 
-void Gearbox::setIdleMode(rev::CANSparkMax::IdleMode mode){
-    m_moteur0.SetIdleMode(mode);
-    m_moteur1.SetIdleMode(mode);
+void Gearbox::setIdleMode(string mode){
+    assert (mode == "kBrake" || mode == "kCoast");
+    if(mode == "kBrake"){
+        m_moteur0.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+        m_moteur1.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+    }
+    if(mode == "kBrake"){
+        m_moteur0.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
+        m_moteur1.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
+    }
 }
 
 void Gearbox::setInverted(bool invertion){
@@ -88,7 +100,8 @@ void Gearbox::setSpeed(VA va){
 }
 
 double Gearbox::getBusVoltage(int moteurID){
-    assert (0 <= moteurID >= 1);
+    assert (0 <= moteurID);
+    assert (moteurID >= 1);
         if(moteurID == 0){
         return m_moteur0.GetBusVoltage();
     }
@@ -98,7 +111,8 @@ double Gearbox::getBusVoltage(int moteurID){
 }
 
 double Gearbox::getAppliedOutput(int moteurID){
-    assert (0 <= moteurID >= 1);
+    assert (0 <= moteurID);
+    assert (moteurID >= 1);
     if(moteurID == 0){
         return m_moteur0.GetAppliedOutput();
     }
@@ -112,7 +126,8 @@ double Gearbox::getExternalEncoderDistance(){
 }
 
 double Gearbox::getInternalEncoderPosition(int moteurID){
-    assert (0 <= moteurID >= 1);
+    assert (0 <= moteurID);
+    assert (moteurID >= 1);
     if(moteurID == 0){
         return m_encodeur0.GetPosition();
     }
@@ -122,7 +137,8 @@ double Gearbox::getInternalEncoderPosition(int moteurID){
 }
 
 double Gearbox::getOutputCurrent(int moteurID){
-    assert (0 <= moteurID >= 1);
+    assert (0 <= moteurID);
+    assert (moteurID >= 1);
     if(moteurID == 0){
         return m_moteur0.GetOutputCurrent();
     }

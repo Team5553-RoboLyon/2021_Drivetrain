@@ -3,12 +3,7 @@
 
 #include <string>
 
-  CSVLogFile::CSVLogFile(wpi::StringRef filePrefix, Value columnHeading,
-             Values... columnHeadings)
-      : m_logFile(filePrefix, "csv") {
-    m_logFile << "\"Timestamp (ms)\",";
-    LogValues(columnHeading, columnHeadings...);
-  }
+
 
     void CSVLogFile::Log(Value value, Values... values) {
     using namespace std::chrono;
