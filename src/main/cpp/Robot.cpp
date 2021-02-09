@@ -85,6 +85,10 @@ void Robot::AutonomousInit() {}
 
 void Robot::AutonomousPeriodic() {}
 
+void Robot::RobotPeriodic() {}
+
+void Robot::TestPeriodic() {}
+
 void Robot::TeleopInit()
 {
     m_gearboxDroite.resetExternalEncodeur();

@@ -10,26 +10,29 @@
 //     k_lut[motorID][isBackward][2] = vintersept;
 // }
 
-// Gearbox::Gearbox(int moteur0ID, int moteur1ID, unsigned int encodeurChannelA, unsigned int encodeurChannelB, bool isInverted, bool isLeft)
-// {
+ Gearbox::Gearbox(int moteur0ID, int moteur1ID, unsigned int encodeurChannelA, unsigned int encodeurChannelB, bool isInverted, bool isLeft)
+ {
     
-//     // Motors and encoders of the gearbox declaration
-//     rev::CANSparkMax m_moteur0{moteur0ID, rev::CANSparkMax::MotorType::kBrushless};
-//     rev::CANSparkMax m_moteur1{moteur1ID, rev::CANSparkMax::MotorType::kBrushless};
-//     rev::CANEncoder m_encodeur0{m_moteur0.GetEncoder()};
-//     rev::CANEncoder m_encodeur1{m_moteur1.GetEncoder()};
-//     frc::Encoder m_encodeurExterne{encodeurChannelA, encodeurChannelB, isInverted, frc::Encoder::k2X};
+    // Motors and encoders of the {gearbox declaration
+    m_moteur0.~CANSparkMax();
+    new(&m_moteur0) rev::CANSparkMax{moteur0ID, rev::CANSparkMax::MotorType::kBrushless};
+    m_moteur1.~CANSparkMax();
+    new(&m_moteur1) rev::CANSparkMax{moteur1ID, rev::CANSparkMax::MotorType::kBrushless};
 
-//     m_isLeft = isLeft;
-//     m_moteur0ID = moteur0ID;
-//     m_moteur1ID = moteur1ID;
+    m_encodeur0.~CANEncoder();
+    new(&m_encodeur0) rev::CANEncoder{m_moteur0.GetEncoder()};
+    m_encodeur1.~CANEncoder();
+    new(&m_encodeur1) rev::CANEncoder{m_moteur1.GetEncoder()};
 
-// }
+    m_encodeurExterne.~Encoder();
+    new(&m_encodeurExterne) frc::Encoder{encodeurChannelA, encodeurChannelB, isInverted, frc::Encoder::k2X};
 
-Gearbox::Gearbox()
-{
+    m_isLeft = isLeft;
+    m_moteur0ID = moteur0ID;
+    m_moteur1ID = moteur1ID;
 
-}
+ }
+
 
 void Gearbox::setMotorCoefficients(uint isBackward)
 {
@@ -77,16 +80,9 @@ void Gearbox::disableVoltageCompensation(){
     m_moteur1.DisableVoltageCompensation();
 }
 
-void Gearbox::setIdleMode(string mode){
-    assert (mode == "kBrake" || mode == "kCoast");
-    if(mode == "kBrake"){
-        m_moteur0.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-        m_moteur1.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-    }
-    if(mode == "kBrake"){
-        m_moteur0.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
-        m_moteur1.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
-    }
+void Gearbox::setIdleMode(rev::CANSparkMax::IdleMode mode){
+        m_moteur0.SetIdleMode(mode);
+        m_moteur1.SetIdleMode(mode);
 }
 
 void Gearbox::setInverted(bool invertion){

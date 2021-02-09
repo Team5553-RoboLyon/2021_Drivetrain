@@ -31,11 +31,9 @@ class Gearbox
   public:
     void resetExternalEncodeur();
     void disableVoltageCompensation();
-    // void setIdleMode(rev::CANSparkMax::IdleMode mode);
-    void setIdleMode(string mode);
+    void setIdleMode(rev::CANSparkMax::IdleMode mode);
     void setInverted(bool invertion);
-    Gearbox();
-    // Gearbox(int moteur0ID, int moteur1ID, unsigned int encodeurChannelA, unsigned int encodeurChannelB, bool isInverted, bool isLeft);
+    Gearbox(int moteur0ID, int moteur1ID, unsigned int encodeurChannelA, unsigned int encodeurChannelB, bool isInverted, bool isLeft);
     void setMotorCoefficients(uint isBackward);
     void setSpeed(VA va);
     double getBusVoltage(int moteurID);
@@ -58,11 +56,11 @@ class Gearbox
       int m_moteur1ID;
 
       KineticToVoltage m_kv;
-      rev::CANSparkMax m_moteur0;
-      rev::CANSparkMax m_moteur1;
-      rev::CANEncoder m_encodeur0;
-      rev::CANEncoder m_encodeur1;
-      frc::Encoder m_encodeurExterne;
+      rev::CANSparkMax m_moteur0{0, rev::CANSparkMax::MotorType::kBrushless};
+      rev::CANSparkMax m_moteur1{1, rev::CANSparkMax::MotorType::kBrushless};
+      rev::CANEncoder m_encodeur0{m_moteur0.GetEncoder()};
+      rev::CANEncoder m_encodeur1{m_moteur1.GetEncoder()};
+      frc::Encoder m_encodeurExterne{0, 1, 0, frc::Encoder::k2X};
 
   };
 
