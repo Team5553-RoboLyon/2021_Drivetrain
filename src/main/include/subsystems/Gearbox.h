@@ -16,11 +16,9 @@ struct VA
 class KineticToVoltage
 {
 
-  //k_lut[MoteurIndex][ForwardBackward][Kv, Ka, Kintersept]
   double k_lut[4][2][3];
 
 public:
-  //void SetMotorCoefficients(uint motorID, uint isBackward, double kv, double ka, double vintersept);
   void setMotorCoefficients(uint motorID, uint isBackward, double kv, double ka, double vintersept);
   double getVoltage(uint motorID, const VA *pva);
 };
@@ -45,10 +43,8 @@ class Gearbox
 
   private:
 
-      //k_lut[MoteurIndex][ForwardBackward][Kv, Ka, Kintersept]
       double k_lut[2][2][3];
       double getVoltage(unsigned int motorID, const VA *pva);
-      // void setMotorCoefficients(unsigned int motorID, unsigned int isBackward, double kv, double ka, double vintersept);
 
       bool m_isLeft;
 

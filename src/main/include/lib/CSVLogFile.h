@@ -1,4 +1,3 @@
-
 /*----------------------------------------------------------------------------*/
 /* Copyright (c) 2019 FIRST. All Rights Reserved.                             */
 /* Open Source Software - may be modified and shared by FRC teams. The code   */
@@ -16,13 +15,12 @@
 #include <wpi/StringRef.h>
 
 #include "lib/LogFile.h"
-
-
-// * A CSVLogFile writes values to a csv file
-// *
-// * For the CSVLogFile to write log informations, you must call Log()
-// * periodically.
-// */
+/**
+ * A CSVLogFile writes values to a csv file
+ *
+ * For the CSVLogFile to write log informations, you must call Log()
+ * periodically.
+ */
 class CSVLogFile {
  public:
   /**
@@ -37,7 +35,12 @@ class CSVLogFile {
    * @param columnHeadings Titles of other CSVLogFile columns.
    */
   template <typename Value, typename... Values>
-  CSVLogFile(wpi::StringRef filePrefix, Value columnHeading, Values... columnHeadings);
+  CSVLogFile(wpi::StringRef filePrefix, Value columnHeading,
+             Values... columnHeadings)
+      : m_logFile(filePrefix, "csv") {
+    m_logFile << "\"Timestamp (ms)\",";
+    LogValues(columnHeading, columnHeadings...);
+  }
 
   /**
    * Print a new line of values in the CSVLogFile.
@@ -46,14 +49,21 @@ class CSVLogFile {
    * @param values Other values to log in the file in the order.
    */
   template <typename Value, typename... Values>
-  void Log(Value value, Values... values);
+  void Log(Value value, Values... values) {
+    using namespace std::chrono;
+    auto timestamp =
+        duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+    m_logFile << timestamp.count() << ',';
+
+    LogValues(value, values...);
+  }
 
   /**
    * Get the name the file.
    *
    * @return The name of the file.
    */
-  std::string GetFileName();
+  const std::string GetFileName() const { return m_logFile.GetFileName(); }
 
  private:
   /**
@@ -63,14 +73,37 @@ class CSVLogFile {
    * @param values Other values to log in the file in the order.
    */
   template <typename Value, typename... Values>
-  void LogValues(Value value, Values... values);
+  void LogValues(Value value, Values... values) {
+    if constexpr (std::is_convertible_v<Value, wpi::StringRef>) {
+      m_logFile << '\"' << EscapeDoubleQuotes(value) << '\"';
+    } else {
+      m_logFile << value;
+    }
+
+    if constexpr (sizeof...(values) > 0) {
+      m_logFile << ',';
+      LogValues(values...);
+    } else {
+      m_logFile << '\n';
+    }
+  }
+
   /**
    * Escape double quotes in a text by duplicating them.
    *
    * @param text Text to escape.
    * @return The text with all its double quotes escaped.
    */
-  std::string EscapeDoubleQuotes(wpi::StringRef text);
+  const std::string EscapeDoubleQuotes(wpi::StringRef text) const {
+    std::string textString = text.str();
+    for (std::string::size_type i = 0; i < text.size(); i++) {
+      if (text[i] == '\"') {
+        i++;
+        textString.insert(i, "\"");
+      }
+    }
+    return textString;
+  }
 
   LogFile m_logFile;
 };

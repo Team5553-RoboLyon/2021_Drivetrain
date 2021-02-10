@@ -3,12 +3,6 @@
 #include "subsystems/Gearbox.h"
 
 
-// void Gearbox::setMotorCoefficients(unsigned int motorID, unsigned int isBackward, double kv, double ka, double vintersept)
-// {
-//     k_lut[motorID][isBackward][0] = kv;
-//     k_lut[motorID][isBackward][1] = ka;
-//     k_lut[motorID][isBackward][2] = vintersept;
-// }
 
  Gearbox::Gearbox(int moteur0ID, int moteur1ID, unsigned int encodeurChannelA, unsigned int encodeurChannelB, bool isInverted, bool isLeft)
  {

@@ -2,7 +2,6 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-// #pragma once
 
 #include <string>
 
@@ -30,6 +29,15 @@
 #define rightEncoderChannelA 0
 #define rightEncoderChannelB 1
 
+#define TRACKWIDTH 0.61f
+#define HALF_TRACKWIDTH (TRACKWIDTH / 2.0f)
+#define VMAX 3.4 // vitesse Max  théorique (3,395472 sur JVN-DT) .. à vérifier aux encodeurs
+#define WMAX                       \
+    (((2.0 * VMAX) / TRACKWIDTH) / \
+     1.7) // vitesse angulaire Max theorique	.. à modifier avec Garice
+
+#define FLAG_ON(val, flag) ((val) |= (flag))
+#define TIME_RAMP 0
 
 
 

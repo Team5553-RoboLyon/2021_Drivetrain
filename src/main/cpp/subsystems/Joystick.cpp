@@ -21,11 +21,6 @@ void Joystick::getSpeedsAndAccelerations(VA *pva_left, VA *pva_right, const VA *
     double omega; //    pivot speed
     double blend;
 
-    // blend_threshold  : The threshold at which the pivot action starts
-    //                This threshold is measured in units on the Y-axis
-    //                away from the X-axis (Y=0). A greater value will assign
-    //                more of the m_joystick's range to pivot actions.
-    //                Allowable range: (0..1)
     double blend_threshold = 0.75;
 
     if (jy >= 0)
