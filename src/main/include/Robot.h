@@ -2,12 +2,44 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-#pragma once
 
 #include <string>
 
 #include <frc/TimedRobot.h>
 #include <frc/smartdashboard/SendableChooser.h>
+#include <frc/ADXRS450_Gyro.h>
+#include <frc/shuffleboard/Shuffleboard.h>
+
+#include "subsystems/Gearbox.h"
+#include "lib/CSVLogFile.h"
+#include "lib/Utils.h"
+#include "lib/CustomMaths.h"
+#include "subsystems/Joystick.h"
+#include "lib/Characterization.h"
+
+
+#define rightInverte true
+#define leftInverte false
+#define leftMotor 2
+#define leftMotorFollower 3
+#define rightMotor 1
+#define rightMotorFollower 4
+#define leftEncoderChannelA 2
+#define leftEncoderChannelB 3
+#define rightEncoderChannelA 0
+#define rightEncoderChannelB 1
+
+#define TRACKWIDTH 0.61f
+#define HALF_TRACKWIDTH (TRACKWIDTH / 2.0f)
+#define VMAX 3.4 // vitesse Max  théorique (3,395472 sur JVN-DT) .. à vérifier aux encodeurs
+#define WMAX                       \
+    (((2.0 * VMAX) / TRACKWIDTH) / \
+     1.7) // vitesse angulaire Max theorique	.. à modifier avec Garice
+
+#define FLAG_ON(val, flag) ((val) |= (flag))
+#define TIME_RAMP 0
+
+
 
 class Robot : public frc::TimedRobot {
  public:
@@ -21,10 +53,31 @@ class Robot : public frc::TimedRobot {
   void DisabledPeriodic() override;
   void TestInit() override;
   void TestPeriodic() override;
+  
+  // void DriveOld(double forward, double turn);
+  void Drive(double jy, double jx);
+
 
  private:
-  frc::SendableChooser<std::string> m_chooser;
-  const std::string kAutoNameDefault = "Default";
-  const std::string kAutoNameCustom = "My Auto";
-  std::string m_autoSelected;
+  VA m_va_left;
+  VA m_va_right;
+  VA m_va_max;
+
+  // CSVLogFile *m_LogFile, *m_LogFileDriving;
+
+  Gearbox m_gearboxGauche{leftMotor, leftMotorFollower, leftEncoderChannelA, leftEncoderChannelB, leftInverte, true};
+  Gearbox m_gearboxDroite{rightMotor, rightMotorFollower, rightEncoderChannelA, rightEncoderChannelB, rightInverte, false};
+
+  nt::NetworkTableEntry m_PowerEntry, m_logGyro;
+
+  frc::ADXRS450_Gyro m_gyro{frc::SPI::Port::kOnboardCS0};//gyro definition
+
+  Joystick m_joystick;
+
+  bool m_override = false;
+  bool m_isLogging = false;
+  double m_ramp = 0;
+  double m_time0;
+
+  Characterization characterization;
 };
