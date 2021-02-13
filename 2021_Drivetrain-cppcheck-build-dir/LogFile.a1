@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="3128630479">
+  <FileInfo check="CheckUnusedFunctions">
+    <functioncall functionName="CreateFilename"/>
+    <functioncall functionName="c_str"/>
+    <functioncall functionName="close"/>
+    <functioncall functionName="datetime"/>
+    <functioncall functionName="difftime"/>
+    <functioncall functionName="duration"/>
+    <functioncall functionName="fail"/>
+    <functioncall functionName="fileExtension"/>
+    <functioncall functionName="filePrefix"/>
+    <functioncall functionName="filename"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="localTime"/>
+    <functioncall functionName="localtime"/>
+    <functioncall functionName="m_fileExtension"/>
+    <functioncall functionName="m_filePrefix"/>
+    <functioncall functionName="m_time"/>
+    <functioncall functionName="newName"/>
+    <functioncall functionName="newTime"/>
+    <functioncall functionName="open"/>
+    <functioncall functionName="outs"/>
+    <functioncall functionName="rename"/>
+    <functioncall functionName="return"/>
+    <functioncall functionName="sizeof"/>
+    <functioncall functionName="strftime"/>
+    <functioncall functionName="time"/>
+  </FileInfo>
+</analyzerinfo>

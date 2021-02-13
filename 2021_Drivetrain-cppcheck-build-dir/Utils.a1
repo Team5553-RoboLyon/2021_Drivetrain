@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="1123526498">
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="Deadband" lineNumber="4"/>
+    <functioncall functionName="abs"/>
+    <functioncall functionName="deadband"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="value"/>
+  </FileInfo>
+</analyzerinfo>

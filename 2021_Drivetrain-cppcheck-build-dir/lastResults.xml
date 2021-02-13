@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<results version="2">
+    <cppcheck version="2.3"/>
+    <errors>
+        <error id="unreadVariable" severity="style" msg="Variable &amp;#039;md0&amp;#039; is assigned a value that is never used." verbose="Variable &amp;#039;md0&amp;#039; is assigned a value that is never used." cwe="563" hash="916484637448133423" sinceDate="10/02/2021">
+            <location file="src/main/cpp/Robot.cpp" line="132"/>
+        </error>
+        <error id="unreadVariable" severity="style" msg="Variable &amp;#039;md1&amp;#039; is assigned a value that is never used." verbose="Variable &amp;#039;md1&amp;#039; is assigned a value that is never used." cwe="563" hash="3445520437030075852" sinceDate="10/02/2021">
+            <location file="src/main/cpp/Robot.cpp" line="133"/>
+        </error>
+        <error id="unreadVariable" severity="style" msg="Variable &amp;#039;mg0&amp;#039; is assigned a value that is never used." verbose="Variable &amp;#039;mg0&amp;#039; is assigned a value that is never used." cwe="563" hash="14727831826274975656" sinceDate="10/02/2021">
+            <location file="src/main/cpp/Robot.cpp" line="135"/>
+        </error>
+        <error id="unreadVariable" severity="style" msg="Variable &amp;#039;mg1&amp;#039; is assigned a value that is never used." verbose="Variable &amp;#039;mg1&amp;#039; is assigned a value that is never used." cwe="563" hash="11239232832825292434" sinceDate="10/02/2021">
+            <location file="src/main/cpp/Robot.cpp" line="136"/>
+        </error>
+    </errors>
+</results>

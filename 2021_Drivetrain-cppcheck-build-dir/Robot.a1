@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="2797266299">
+        <error id="unreadVariable" severity="style" msg="Variable &apos;md0&apos; is assigned a value that is never used." verbose="Variable &apos;md0&apos; is assigned a value that is never used." cwe="563" hash="916484637448133423">
+            <location file="/home/eymeric/code_bidouille/projets/robolyon/2021_Drivetrain/src/main/cpp/Robot.cpp" line="132" column="13"/>
+            <symbol>md0</symbol>
+        </error>
+        <error id="unreadVariable" severity="style" msg="Variable &apos;md1&apos; is assigned a value that is never used." verbose="Variable &apos;md1&apos; is assigned a value that is never used." cwe="563" hash="3445520437030075852">
+            <location file="/home/eymeric/code_bidouille/projets/robolyon/2021_Drivetrain/src/main/cpp/Robot.cpp" line="133" column="13"/>
+            <symbol>md1</symbol>
+        </error>
+        <error id="unreadVariable" severity="style" msg="Variable &apos;mg0&apos; is assigned a value that is never used." verbose="Variable &apos;mg0&apos; is assigned a value that is never used." cwe="563" hash="14727831826274975656">
+            <location file="/home/eymeric/code_bidouille/projets/robolyon/2021_Drivetrain/src/main/cpp/Robot.cpp" line="135" column="13"/>
+            <symbol>mg0</symbol>
+        </error>
+        <error id="unreadVariable" severity="style" msg="Variable &apos;mg1&apos; is assigned a value that is never used." verbose="Variable &apos;mg1&apos; is assigned a value that is never used." cwe="563" hash="11239232832825292434">
+            <location file="/home/eymeric/code_bidouille/projets/robolyon/2021_Drivetrain/src/main/cpp/Robot.cpp" line="136" column="13"/>
+            <symbol>mg1</symbol>
+        </error>
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="main" lineNumber="69"/>
+    <functioncall functionName="Add"/>
+    <functioncall functionName="Calibrate"/>
+    <functioncall functionName="Deadband"/>
+    <functioncall functionName="Drive"/>
+    <functioncall functionName="GetEntry"/>
+    <functioncall functionName="GetTab"/>
+    <functioncall functionName="StartRobot"/>
+    <functioncall functionName="WithWidget"/>
+    <functioncall functionName="deleteLogFileDriving"/>
+    <functioncall functionName="disableVoltageCompensation"/>
+    <functioncall functionName="false"/>
+    <functioncall functionName="freeDriveLog"/>
+    <functioncall functionName="getAButtonPressed"/>
+    <functioncall functionName="getAppliedOutput"/>
+    <functioncall functionName="getBButtonPressed"/>
+    <functioncall functionName="getBusVoltage"/>
+    <functioncall functionName="getSpeedsAndAccelerations"/>
+    <functioncall functionName="getX"/>
+    <functioncall functionName="getXButtonPressed"/>
+    <functioncall functionName="getY"/>
+    <functioncall functionName="getYButtonPressed"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="initializeTestData"/>
+    <functioncall functionName="jx"/>
+    <functioncall functionName="jy"/>
+    <functioncall functionName="kBrake"/>
+    <functioncall functionName="kGyro"/>
+    <functioncall functionName="kTextView"/>
+    <functioncall functionName="logData"/>
+    <functioncall functionName="m_gearboxDroite"/>
+    <functioncall functionName="m_gearboxGauche"/>
+    <functioncall functionName="m_gyro"/>
+    <functioncall functionName="m_isLogging"/>
+    <functioncall functionName="m_override"/>
+    <functioncall functionName="m_ramp"/>
+    <functioncall functionName="m_va_left"/>
+    <functioncall functionName="m_va_max"/>
+    <functioncall functionName="m_va_right"/>
+    <functioncall functionName="nextTest"/>
+    <functioncall functionName="previousTest"/>
+    <functioncall functionName="resetExternalEncodeur"/>
+    <functioncall functionName="setIdleMode"/>
+    <functioncall functionName="setInverted"/>
+    <functioncall functionName="setMotorCoefficients"/>
+    <functioncall functionName="setSpeed"/>
+    <functioncall functionName="startTest"/>
+    <functioncall functionName="stopTest"/>
+    <functioncall functionName="time"/>
+    <functioncall functionName="true"/>
+  </FileInfo>
+</analyzerinfo>
