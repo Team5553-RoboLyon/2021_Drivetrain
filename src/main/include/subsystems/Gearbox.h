@@ -9,8 +9,9 @@
 typedef struct VA VA;
 struct VA
 {
-    double m_speed;
-    double m_acceleration;
+  double m_speed;
+  double m_acceleration;
+  double m_jerk;
 };
 
 class KineticToVoltage
@@ -33,13 +34,23 @@ class Gearbox
     void setInverted(bool invertion);
     Gearbox(int moteur0ID, int moteur1ID, unsigned int encodeurChannelA, unsigned int encodeurChannelB, bool isInverted, bool isLeft);
     void setMotorCoefficients(uint isBackward);
-    void setSpeed(VA va);
+    // void setSpeed(VA va);
+    void setSpeed(double speed, bool moteur);
     double getBusVoltage(int moteurID);
     double getAppliedOutput(int moteurID);
     double getExternalEncoderDistance();
     double getInternalEncoderPosition(int moteurID);
     double getOutputCurrent(int moteurID);
     void externalEncoderReset();
+    void restoreFactoryDefaults();
+    void setOpenLoopRampRate(float time_ramp);
+    void setDistancePerPulse(int pulse);
+    void setSamplesToAverage(int average);
+    bool getInverted(bool moteur);
+    int getExternalEncoder();
+    int getExternalEncoderRaw();
+    KineticToVoltage getKv();
+
 
   private:
 
@@ -56,7 +67,7 @@ class Gearbox
       rev::CANSparkMax m_moteur1{1, rev::CANSparkMax::MotorType::kBrushless};
       rev::CANEncoder m_encodeur0{m_moteur0.GetEncoder()};
       rev::CANEncoder m_encodeur1{m_moteur1.GetEncoder()};
-      frc::Encoder m_encodeurExterne{0, 1, 0, frc::Encoder::k2X};
+      frc::Encoder m_encodeurExterne{0, 1, false, frc::Encoder::k4X};
 
   };
 

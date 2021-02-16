@@ -20,7 +20,7 @@
 #define TEST_TOTAL_NB (TEST_LOWVOLTAGE_NB + TEST_MEDIUMVOLTAGE_NB + TEST_HIGHVOLTAGE_NB)
 
 #define FLAG_TestSpecs_Done 1
-
+#define TIME_RAMP 0.6
 
 //struct for the current state of the test
 typedef struct TestSpecs TestSpecs;
@@ -48,6 +48,8 @@ public:
     void previousTest();
     void startTest();
     void stopTest(Gearbox *gearboxGauche, Gearbox *gearboxDroite);
+    void setSpeedDriveOld(Gearbox *gearboxGauche, Gearbox *gearboxDroite);
+    void logStateSwitch(Gearbox *gearboxGauche, Gearbox *gearboxDroite, double *m_time0, double *m_ramp);
 
     void logData(Gearbox *gearboxGauche, Gearbox *gearboxDroite, frc::ADXRS450_Gyro *gyro, double ramp);
     void deleteLogFileDriving();
@@ -58,6 +60,12 @@ private:
 
     TestSpecs TestData[TEST_TOTAL_NB * 2];
     int CurrentTestID = 0;
+
+
+    int m_logState = 0;
+    char m_prefix[512];
+
+
 
     CSVLogFile *m_LogFile, *m_LogFileDriving;
     nt::NetworkTableEntry m_LogFilename, m_LogFilenameDriving;

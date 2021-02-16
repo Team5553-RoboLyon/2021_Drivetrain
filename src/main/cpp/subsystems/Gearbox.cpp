@@ -19,7 +19,7 @@
     new(&m_encodeur1) rev::CANEncoder{m_moteur1.GetEncoder()};
 
     m_encodeurExterne.~Encoder();
-    new(&m_encodeurExterne) frc::Encoder{encodeurChannelA, encodeurChannelB, isInverted, frc::Encoder::k2X};
+    new(&m_encodeurExterne) frc::Encoder{encodeurChannelA, encodeurChannelB, isInverted, frc::Encoder::k4X};
 
     m_isLeft = isLeft;
     m_moteur0ID = moteur0ID;
@@ -30,26 +30,25 @@
 
 void Gearbox::setMotorCoefficients(uint isBackward)
 {
-
     if(m_isLeft){
-        //Left 1 Forward
-        m_kv.setMotorCoefficients(m_moteur0ID, isBackward, 2.80842, 0.16071, 0.1467);
-        //Left 2 Forward
-        m_kv.setMotorCoefficients(m_moteur1ID, isBackward, 2.80833, 0.1549, 0.14571);
-        //Left 1 Backward
-        m_kv.setMotorCoefficients(m_moteur0ID, !isBackward, 2.80397, 0.14271, -0.15557);
-        //Left 2 Backward
-        m_kv.setMotorCoefficients(m_moteur1ID, !isBackward, 2.80367, 0.13479, -0.15524);
+    //Left 1 Forward
+    m_kv.setMotorCoefficients(m_moteur0ID, isBackward, 2.815697532731544, 0.4694670372587819, 0.11096684006625335);
+    //Left 2 Forward
+    m_kv.setMotorCoefficients(m_moteur1ID, isBackward, 2.8171477288641165, 0.478564016576128, 0.10975114086308402);
+    //Left 1 Backward
+    m_kv.setMotorCoefficients(m_moteur0ID, !isBackward, 2.8526153046254596, 0.4060315027282673, -0.08529919470860658);
+    //Left 2 Backward
+    m_kv.setMotorCoefficients(m_moteur1ID, !isBackward, 2.853672567242419, 0.40031111541410647, -0.08431872256237849);
 
     }else{
-        //Right 1 Forward
-        m_kv.setMotorCoefficients(m_moteur0ID, isBackward, 2.80423, 0.13559, 0.16904);
-        //Right 2 Forward
-        m_kv.setMotorCoefficients(m_moteur1ID, isBackward, 2.80524, 0.13376, 0.16744);
-        //Right 1 Backward
-        m_kv.setMotorCoefficients(m_moteur0ID, !isBackward, 2.83487, 0.12593, -0.14335);
-        //Right 2 Backward
-        m_kv.setMotorCoefficients(m_moteur1ID, !isBackward, 2.83517, 0.12205, -0.14276);
+    //Right 1 Forward
+    m_kv.setMotorCoefficients(m_moteur0ID, isBackward, 2.8024631236903135, 0.4403635472698452, 0.10741975250277491);
+    //Right 2 Forward
+    m_kv.setMotorCoefficients(m_moteur1ID, isBackward, 2.801981945589249, 0.43687098372033967, 0.10747542821680156);
+    //Right 1 Backward
+    m_kv.setMotorCoefficients(m_moteur0ID, !isBackward, 2.7974216902473548, 0.38833514223084226, -0.10863199131460277);
+    //Right 2 Backward
+    m_kv.setMotorCoefficients(m_moteur1ID, !isBackward, 2.7967290044994533, 0.38680645837677974, -0.10898343976134406);
     }
 }
 
@@ -84,9 +83,21 @@ void Gearbox::setInverted(bool invertion){
     m_moteur0.SetInverted(invertion);
 }
 
-void Gearbox::setSpeed(VA va){
-    m_moteur0.Set(m_kv.getVoltage(m_moteur0ID, &va) / m_moteur0.GetBusVoltage());
-    m_moteur1.Set(m_kv.getVoltage(m_moteur1ID, &va) / m_moteur1.GetBusVoltage());
+// void Gearbox::setSpeed(VA va){
+//     m_moteur0.Set(m_kv.getVoltage(m_moteur0ID, &va) / m_moteur0.GetBusVoltage());
+//     m_moteur1.Set(m_kv.getVoltage(m_moteur1ID, &va) / m_moteur1.GetBusVoltage());
+// }
+KineticToVoltage Gearbox::getKv(){
+    return m_kv;
+}
+
+void Gearbox::setSpeed(double speed, bool moteur){
+    if (!moteur){
+        m_moteur0.Set(speed);
+    }
+    if(moteur){
+       m_moteur1.Set(speed); 
+    }
 }
 
 double Gearbox::getBusVoltage(int moteurID){
@@ -139,6 +150,41 @@ double Gearbox::getOutputCurrent(int moteurID){
 
 void Gearbox::externalEncoderReset(){
     m_encodeurExterne.Reset();
+}
+
+void Gearbox::restoreFactoryDefaults(){
+    m_moteur0.RestoreFactoryDefaults();
+    m_moteur1.RestoreFactoryDefaults();
+}
+void Gearbox::setOpenLoopRampRate(float time_ramp){
+    m_moteur0.SetOpenLoopRampRate(time_ramp);
+    m_moteur1.SetOpenLoopRampRate(time_ramp);
+
+}
+
+void Gearbox::setDistancePerPulse(int pulse){
+    m_encodeurExterne.SetDistancePerPulse(pulse);
+}
+
+void Gearbox::setSamplesToAverage(int average){
+    m_encodeurExterne.SetSamplesToAverage(average);
+}
+
+bool Gearbox::getInverted(bool moteur){
+if(!moteur){
+    return m_moteur0.GetInverted();
+}
+if (moteur){
+    return m_moteur1.GetInverted();
+}
+}
+
+int Gearbox::getExternalEncoder(){
+    return m_encodeurExterne.Get();
+}
+
+int Gearbox::getExternalEncoderRaw(){
+    return m_encodeurExterne.GetRaw();
 }
 
 //kinetic to voltage

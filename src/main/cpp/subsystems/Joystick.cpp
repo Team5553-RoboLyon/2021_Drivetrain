@@ -1,16 +1,59 @@
 #include "subsystems/Joystick.h"
 
 
-double Joystick::getY(){
-    return m_driverController.GetY(frc::GenericHID::JoystickHand::kLeftHand);
+double Joystick::getX(bool isRight){
+    #if XBOX_CONTROLLER
+        if(isRight){
+            return m_driverController.GetX(frc::GenericHID::JoystickHand::kRightHand);
+        }
+        if(!isRight){
+            return m_driverController.GetX(frc::GenericHID::JoystickHand::kLeftHand);
+        }
+    #else
+        if(isRight){
+            return m_rightHandController.GetX();
+        }
+        if(!isRight){
+            return m_leftHandController.GetX();
+        }
+    #endif
+
 }
 
-bool Joystick::getBButtonPressed(){
-    return m_driverController.GetBButtonPressed();
+double Joystick::getY(bool isRight){
+    #if XBOX_CONTROLLER
+        if(isRight){
+            return m_driverController.GetY(frc::GenericHID::JoystickHand::kRightHand);
+        }
+        if(!isRight){
+            return m_driverController.GetY(frc::GenericHID::JoystickHand::kLeftHand);
+        }
+    #else
+        if(isRight){
+            return m_rightHandController.GetY();
+        }
+        if(!isRight){
+            return m_leftHandController.GetY();
+        }
+    #endif
 }
 
-double Joystick::getX(){
-    return m_driverController.GetX(frc::GenericHID::JoystickHand::kRightHand);
+double Joystick::getZ(bool isRight){
+    #if XBOX_CONTROLLER
+    if(isRight){
+        return m_driverController.GetZ(frc::GenericHID::JoystickHand::kRightHand);
+    }
+    if(!isRight){
+        return m_driverController.GetZ(frc::GenericHID::JoystickHand::kLeftHand);
+    }
+    #else
+        if(isRight){
+            return m_rightHandController.GetZ();
+        }
+        if(!isRight){
+            return m_leftHandController.GetZ();
+        }    
+    #endif
 }
 
 void Joystick::getSpeedsAndAccelerations(VA *pva_left, VA *pva_right, const VA *pvamax, const double jx, const double jy)
@@ -104,6 +147,83 @@ void Joystick::getSpeedsAndAccelerations(VA *pva_left, VA *pva_right, const VA *
     std::cout << "vitesse : " << pva_right->m_speed << "   " << pva_left->m_speed << std::endl;
 }
 
+void Joystick::getSpeedsAndAccelerationsNew(VA *pva_left, VA *pva_right, const VA *pva_max, const double jx, const double jy)
+{
+    double target_left_speed;
+    double target_right_speed;
+
+    double v = jx * VMAX;
+    double w = jy * WMAX;
+
+    // w = m_drivetrain->CalculateTurn(forward, w);
+
+    double lwheel = v + (w * HALF_TRACKWIDTH);
+    double rwheel = v - (w * HALF_TRACKWIDTH);
+
+    double k;
+    k = 1.0 / (NMAX(VMAX, NMAX(NABS(lwheel), NABS(rwheel))));
+    lwheel *= k;
+    rwheel *= k;
+
+    target_left_speed = lwheel * VMAX;
+    target_right_speed = rwheel * VMAX;
+
+    updateVelocityAndAcceleration(pva_left, pva_max, target_left_speed, 0.02);
+    updateVelocityAndAcceleration(pva_right, pva_max, target_right_speed, 0.02);
+}
+
+void Joystick::updateVelocityAndAcceleration(VA *pva, const VA *pva_max, const double target_speed, const double dt)
+{
+    double acc;
+    double v_diff;
+
+    acc = pva_max->m_acceleration * dt;
+    v_diff = target_speed - pva->m_speed;
+
+    if (v_diff < 0)
+    {
+        if (v_diff < -3.0f * pva->m_acceleration * pva->m_acceleration / (2.0f * pva_max->m_jerk))
+        {
+            pva->m_acceleration -= pva_max->m_jerk * dt;
+            if (pva->m_acceleration < -pva_max->m_acceleration)
+            {
+                pva->m_acceleration = -pva_max->m_acceleration;
+            }
+        }
+    }
+    else if (v_diff > 0)
+    {
+        if (v_diff > 3.0f * pva->m_acceleration * pva->m_acceleration / (2.0f * pva_max->m_jerk))
+        {
+            pva->m_acceleration += pva_max->m_jerk * dt;
+            if (pva->m_acceleration > pva_max->m_acceleration)
+            {
+                pva->m_acceleration = pva_max->m_acceleration;
+            }
+        }
+    }
+    else
+    {
+        std::cout << pva->m_acceleration << "    alors qu'elle devrait être nulle" << std::endl;
+        return;
+    }
+
+    pva->m_speed += pva->m_acceleration * dt;
+}
+
+double Joystick::getThrottle(bool isRight){
+    #if XBOX_CONTROLLER
+    #else
+        if(isRight){
+            return m_rightHandController.GetThrottle();
+        }
+        if(!isRight){
+            return m_leftHandController.GetThrottle();
+        }    
+    #endif
+}
+
+
 bool Joystick::getXButtonPressed(){
     return m_driverController.GetXButtonPressed();
 }
@@ -114,4 +234,7 @@ bool Joystick::getAButtonPressed(){
 
 bool Joystick::getYButtonPressed(){
     return m_driverController.GetYButtonPressed();
+}
+bool Joystick::getBButtonPressed(){
+    return m_driverController.GetBButtonPressed();
 }

@@ -5,10 +5,16 @@
 
 #include <string>
 
+
 #include <frc/TimedRobot.h>
 #include <frc/smartdashboard/SendableChooser.h>
 #include <frc/ADXRS450_Gyro.h>
 #include <frc/shuffleboard/Shuffleboard.h>
+#if IMU
+#include <adi/ADIS16470_IMU.h>
+#endif
+#include <frc/LinearFilter.h>
+
 
 #include "subsystems/Gearbox.h"
 #include "lib/CSVLogFile.h"
@@ -16,7 +22,7 @@
 #include "lib/CustomMaths.h"
 #include "subsystems/Joystick.h"
 #include "lib/Characterization.h"
-
+#include "Constant.h"
 
 #define rightInverte true
 #define leftInverte false
@@ -32,12 +38,10 @@
 #define TRACKWIDTH 0.61f
 #define HALF_TRACKWIDTH (TRACKWIDTH / 2.0f)
 #define VMAX 3.4 // vitesse Max  théorique (3,395472 sur JVN-DT) .. à vérifier aux encodeurs
-#define WMAX                       \
-    (((2.0 * VMAX) / TRACKWIDTH) / \
-     1.7) // vitesse angulaire Max theorique	.. à modifier avec Garice
+#define WMAX ((2.0 * VMAX) / TRACKWIDTH) // vitesse angulaire Max theorique	.. à modifier avec Garice
 
 #define FLAG_ON(val, flag) ((val) |= (flag))
-#define TIME_RAMP 0
+
 
 
 
@@ -54,7 +58,7 @@ class Robot : public frc::TimedRobot {
   void TestInit() override;
   void TestPeriodic() override;
   
-  // void DriveOld(double forward, double turn);
+  void DriveOld(double forward, double turn);
   void Drive(double jy, double jx);
 
 
@@ -68,16 +72,31 @@ class Robot : public frc::TimedRobot {
   Gearbox m_gearboxGauche{leftMotor, leftMotorFollower, leftEncoderChannelA, leftEncoderChannelB, leftInverte, true};
   Gearbox m_gearboxDroite{rightMotor, rightMotorFollower, rightEncoderChannelA, rightEncoderChannelB, rightInverte, false};
 
-  nt::NetworkTableEntry m_PowerEntry, m_logGyro;
+  nt::NetworkTableEntry m_speedY, m_speedX, m_PowerEntry, m_logGyro, m_customEntry;
 
   frc::ADXRS450_Gyro m_gyro{frc::SPI::Port::kOnboardCS0};//gyro definition
+  double init_x;
+  double init_y;
+
+  double m_time0;
+  double m_ramp = 0;
+
+
+  #if IMU
+    frc::ADIS16470_IMU m_imu{};
+    frc::LinearFilter<double> filterX = frc::LinearFilter<double>::MovingAverage(64);
+    frc::LinearFilter<double> filterY = frc::LinearFilter<double>::MovingAverage(64);
+  #endif
 
   Joystick m_joystick;
 
   bool m_override = false;
   bool m_isLogging = false;
-  double m_ramp = 0;
-  double m_time0;
+
 
   Characterization characterization;
+
+  double m_turnAdjustFactor = 0.6;
+
+  char m_invertedPrefix[8];
 };
