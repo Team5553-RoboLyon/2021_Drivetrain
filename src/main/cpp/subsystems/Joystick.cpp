@@ -187,21 +187,11 @@ void Joystick::getSpeedsAndAccelerationsNew(VA *pva_left, VA *pva_right, const V
 
 void Joystick::updateVelocityAndAcceleration(VA *pva, const VA *pva_max, const double target_speed, const double dt)
 {
-<<<<<<< Updated upstream
-    // double acc;
-    double v_diff;
-
-    // acc = pva_max->m_acceleration * dt;
-    v_diff = target_speed - pva->m_speed;
-
-    if (v_diff < 0)
-=======
     double dv0v1 = target_speed - pva->m_speed;
     double dv_a = getSign(pva->m_acceleration) * pva->m_acceleration * pva->m_acceleration / (2.0f * pva_max->m_jerk);
     double d_v = dv0v1 - dv_a;
 
     if (d_v < 0)
->>>>>>> Stashed changes
     {
         if (pva->m_acceleration <= -pva_max->m_acceleration)
         {
