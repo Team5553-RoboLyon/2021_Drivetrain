@@ -174,10 +174,10 @@ void Joystick::getSpeedsAndAccelerationsNew(VA *pva_left, VA *pva_right, const V
 
 void Joystick::updateVelocityAndAcceleration(VA *pva, const VA *pva_max, const double target_speed, const double dt)
 {
-    double acc;
+    // double acc;
     double v_diff;
 
-    acc = pva_max->m_acceleration * dt;
+    // acc = pva_max->m_acceleration * dt;
     v_diff = target_speed - pva->m_speed;
 
     if (v_diff < 0)
