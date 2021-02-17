@@ -10,11 +10,14 @@
 #include <frc/smartdashboard/SendableChooser.h>
 #include <frc/ADXRS450_Gyro.h>
 #include <frc/shuffleboard/Shuffleboard.h>
+#include <frc/PowerDistributionPanel.h>
 #if IMU
 #include <adi/ADIS16470_IMU.h>
 #endif
 #include <frc/LinearFilter.h>
-
+#include <units/units.h>
+#include <iostream>
+#include <time.h>
 
 #include "subsystems/Gearbox.h"
 #include "lib/CSVLogFile.h"
@@ -35,15 +38,12 @@
 #define rightEncoderChannelA 0
 #define rightEncoderChannelB 1
 
-#define TRACKWIDTH 0.61f
-#define HALF_TRACKWIDTH (TRACKWIDTH / 2.0f)
-#define VMAX 3.4 // vitesse Max  théorique (3,395472 sur JVN-DT) .. à vérifier aux encodeurs
-#define WMAX ((2.0 * VMAX) / TRACKWIDTH) // vitesse angulaire Max theorique	.. à modifier avec Garice
+
 
 #define FLAG_ON(val, flag) ((val) |= (flag))
 
-
-
+// #define AMAX 5 // Acceleration Max  au PIF .. à définir aux encodeurs
+// #define VOLTAGE_COMPENSATION_VALUE 10
 
 class Robot : public frc::TimedRobot {
  public:
@@ -60,9 +60,15 @@ class Robot : public frc::TimedRobot {
   
   void DriveOld(double forward, double turn);
   void Drive(double jy, double jx);
+  void DriveA(double forward, double turn);
+  void DriveB();
 
 
  private:
+
+  double m_targetLeftSpeed;
+  double m_targetRightSpeed;
+
   VA m_va_left;
   VA m_va_right;
   VA m_va_max;
@@ -81,6 +87,7 @@ class Robot : public frc::TimedRobot {
   double m_time0;
   double m_ramp = 0;
 
+  frc::PowerDistributionPanel m_pdp;
 
   #if IMU
     frc::ADIS16470_IMU m_imu{};

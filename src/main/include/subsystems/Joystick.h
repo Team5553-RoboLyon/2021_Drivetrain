@@ -1,3 +1,4 @@
+#pragma once
 // #if XBOX_CONTROLLER
 #include <frc/XboxController.h>
 // #else
@@ -11,7 +12,9 @@
 #define TRACKWIDTH 0.61f
 #define HALF_TRACKWIDTH (TRACKWIDTH / 2.0f)
 #define VMAX 3.4 // vitesse Max  théorique (3,395472 sur JVN-DT) .. à vérifier aux encodeurs
-#define WMAX (((2.0 * VMAX) / TRACKWIDTH) / 1.7) // vitesse angulaire Max theorique	.. à modifier avec Garice
+#define WMAX ((2.0 * VMAX) / TRACKWIDTH) // vitesse angulaire Max theorique	.. à modifier avec Garice
+#define AMAX 5// Acceleration Max  au PIF .. à définir aux encodeurs
+#define EPSILON 0.0000001
 
 class Joystick {
 
@@ -30,6 +33,7 @@ public:
 
 
     double getThrottle(bool isRight);
+    double getSign(double number);
 
 private:
 

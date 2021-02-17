@@ -1,6 +1,19 @@
 #include "subsystems/Joystick.h"
 
 
+double Joystick::getSign(double number)
+{
+    if (number < 0)
+    {
+        return -1;
+    }
+    else
+    {
+        return 1;
+    }
+}
+
+
 double Joystick::getX(bool isRight){
     #if XBOX_CONTROLLER
         if(isRight){
@@ -174,6 +187,7 @@ void Joystick::getSpeedsAndAccelerationsNew(VA *pva_left, VA *pva_right, const V
 
 void Joystick::updateVelocityAndAcceleration(VA *pva, const VA *pva_max, const double target_speed, const double dt)
 {
+<<<<<<< Updated upstream
     // double acc;
     double v_diff;
 
@@ -181,34 +195,64 @@ void Joystick::updateVelocityAndAcceleration(VA *pva, const VA *pva_max, const d
     v_diff = target_speed - pva->m_speed;
 
     if (v_diff < 0)
+=======
+    double dv0v1 = target_speed - pva->m_speed;
+    double dv_a = getSign(pva->m_acceleration) * pva->m_acceleration * pva->m_acceleration / (2.0f * pva_max->m_jerk);
+    double d_v = dv0v1 - dv_a;
+
+    if (d_v < 0)
+>>>>>>> Stashed changes
     {
-        if (v_diff < -3.0f * pva->m_acceleration * pva->m_acceleration / (2.0f * pva_max->m_jerk))
+        if (pva->m_acceleration <= -pva_max->m_acceleration)
         {
-            pva->m_acceleration -= pva_max->m_jerk * dt;
-            if (pva->m_acceleration < -pva_max->m_acceleration)
-            {
-                pva->m_acceleration = -pva_max->m_acceleration;
-            }
+            pva->m_jerk = 0.0;
+        }
+        else
+        {
+            pva->m_jerk = -pva_max->m_jerk;
         }
     }
-    else if (v_diff > 0)
+    else if (d_v > 0)
     {
-        if (v_diff > 3.0f * pva->m_acceleration * pva->m_acceleration / (2.0f * pva_max->m_jerk))
+        if (pva->m_acceleration >= pva_max->m_acceleration)
         {
-            pva->m_acceleration += pva_max->m_jerk * dt;
-            if (pva->m_acceleration > pva_max->m_acceleration)
-            {
-                pva->m_acceleration = pva_max->m_acceleration;
-            }
+            pva->m_jerk = 0.0;
+        }
+        else
+        {
+            pva->m_jerk = pva_max->m_jerk;
         }
     }
     else
     {
-        std::cout << pva->m_acceleration << "    alors qu'elle devrait être nulle" << std::endl;
-        return;
+        pva->m_jerk = 0.0f;
     }
 
-    pva->m_speed += pva->m_acceleration * dt;
+    double a = pva->m_acceleration + pva->m_jerk * dt;
+
+    if (a > pva_max->m_acceleration)
+    {
+        a = pva_max->m_acceleration;
+    }
+    else if (a < -pva_max->m_acceleration)
+    {
+        a = -pva_max->m_acceleration;
+    }
+
+    double t = abs(a - pva->m_acceleration) / pva_max->m_jerk;
+
+    double da = pva->m_acceleration * t + 0.5 * t * t * pva->m_jerk + a * (dt - t);
+    if (getSign(dv0v1) != getSign(dv0v1 - da))
+    {
+        pva->m_acceleration = 0.0;
+        pva->m_jerk = 0.0;
+        pva->m_speed = target_speed;
+    }
+    else
+    {
+        pva->m_speed += da;
+        pva->m_acceleration = a;
+    }
 }
 
 double Joystick::getThrottle(bool isRight){

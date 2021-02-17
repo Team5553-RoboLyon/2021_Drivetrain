@@ -4,11 +4,9 @@
 
 #include "Robot.h"
 
-#include <iostream>
-#include <time.h>
-
 void Robot::RobotInit()
 {
+    m_isLogging = false;
 
     m_gearboxGauche.restoreFactoryDefaults();
     m_gearboxDroite.restoreFactoryDefaults();
@@ -59,15 +57,57 @@ void Robot::RobotInit()
 
 
 
-    m_va_max.m_speed = 3.5;
-    m_va_max.m_acceleration = 10;
-    m_va_max.m_jerk = 45;
+    m_va_max.m_speed = VMAX;
+    m_va_max.m_acceleration = AMAX;
+    m_va_max.m_jerk = 5;
 
     m_va_left.m_speed = 0;
     m_va_left.m_acceleration = 0;
     m_va_right.m_speed = 0;
     m_va_right.m_acceleration = 0;
-    Robot::AddPeriodic([&]() {characterization.logStateSwitch(&m_gearboxGauche, &m_gearboxDroite, &m_time0, &m_ramp);}, 1_ms, 4_ms);
+
+
+    m_gearboxDroite.setPeriodicFramePeriod(rev::CANSparkMaxLowLevel::PeriodicFrame::kStatus0, 5, 0);
+    m_gearboxDroite.setPeriodicFramePeriod(rev::CANSparkMaxLowLevel::PeriodicFrame::kStatus1, 5, 0);
+    m_gearboxDroite.setPeriodicFramePeriod(rev::CANSparkMaxLowLevel::PeriodicFrame::kStatus0, 5, 1);
+    m_gearboxDroite.setPeriodicFramePeriod(rev::CANSparkMaxLowLevel::PeriodicFrame::kStatus1, 5, 1);
+
+    m_gearboxGauche.setPeriodicFramePeriod(rev::CANSparkMaxLowLevel::PeriodicFrame::kStatus0, 5, 0);
+    m_gearboxGauche.setPeriodicFramePeriod(rev::CANSparkMaxLowLevel::PeriodicFrame::kStatus1, 5, 0);
+    m_gearboxGauche.setPeriodicFramePeriod(rev::CANSparkMaxLowLevel::PeriodicFrame::kStatus0, 5, 1);
+    m_gearboxGauche.setPeriodicFramePeriod(rev::CANSparkMaxLowLevel::PeriodicFrame::kStatus1, 5, 1);
+
+    // Robot::AddPeriodic([&]() {characterization.logState(&m_gearboxGauche, &m_gearboxDroite, &m_time0, &m_ramp);}, 5_ms, 5_ms);
+    Robot::AddPeriodic([&]() {
+        DriveB();
+        if (m_isLogging)
+        {
+            characterization.log(m_targetLeftSpeed,
+                                  m_va_left.m_speed,
+                                  m_gearboxGauche.getExternalEncoderDistance(),
+                                  m_va_left.m_acceleration,
+                                  m_gearboxGauche.getKv().getVoltage(2, &m_va_left),
+                                  m_gearboxGauche.getBusVoltage(0) * m_gearboxGauche.getAppliedOutput(0),
+                                  m_gearboxGauche.getBusVoltage(1) * m_gearboxGauche.getAppliedOutput(1),
+                                  m_gearboxDroite.getBusVoltage(0) * m_gearboxGauche.getAppliedOutput(0),
+                                  m_gearboxDroite.getBusVoltage(1) * m_gearboxGauche.getAppliedOutput(1),
+                                  m_pdp.GetCurrent(0),
+                                  m_pdp.GetCurrent(1),
+                                  m_pdp.GetCurrent(14),
+                                  m_pdp.GetCurrent(15),
+                                  m_gearboxDroite.getOutputCurrent(0),
+                                  m_gearboxDroite.getOutputCurrent(1),
+                                  m_gearboxGauche.getOutputCurrent(0),
+                                  m_gearboxGauche.getOutputCurrent(1),
+                                  m_gearboxDroite.getFaults(0),
+                                  m_gearboxDroite.getFaults(1),
+                                  m_gearboxGauche.getFaults(0),
+                                  m_gearboxGauche.getFaults(1)
+            );
+        }
+
+
+    }, 5_ms, 5_ms);
 }
 
 
@@ -81,6 +121,8 @@ void Robot::TestPeriodic() {}
 
 void Robot::TeleopInit()
 {
+    characterization.newLogFile("/home/lvuser/logs/freeRiding", "target", "speed", "tureSpeed", "acceleration", "voltageTheoric", " trueVoltageG1 ", "trueVoltageG2", "trueVoltageR1", "trueVoltageR2", "pdp0", "pdp1", "pdp14", "pdp15", "A1", "A2", "A3", "A4", "erreur1", "erreur2", "erreur3", "erreur4");
+    m_isLogging = true;
     m_gearboxDroite.resetExternalEncodeur();
     m_gearboxGauche.resetExternalEncodeur();
     #if IMU
@@ -121,10 +163,11 @@ void Robot::Drive(double forward, double turn)
 
 
     m_gearboxGauche.setSpeed(m_gearboxGauche.getKv().getVoltage(0, &m_va_left) / m_gearboxGauche.getBusVoltage(0), 0);
-    m_gearboxGauche.setSpeed(m_gearboxGauche.getKv().getVoltage(0, &m_va_left) / m_gearboxGauche.getBusVoltage(1), 1);
+    m_gearboxGauche.setSpeed(m_gearboxGauche.getKv().getVoltage(1, &m_va_left) / m_gearboxGauche.getBusVoltage(1), 1);
 
-    m_gearboxDroite.setSpeed(m_gearboxDroite.getKv().getVoltage(0, &m_va_left) / m_gearboxDroite.getBusVoltage(0), 0);
-    m_gearboxDroite.setSpeed(m_gearboxDroite.getKv().getVoltage(0, &m_va_left) / m_gearboxDroite.getBusVoltage(1), 1);
+    m_gearboxDroite.setSpeed(m_gearboxDroite.getKv().getVoltage(2, &m_va_right) / m_gearboxDroite.getBusVoltage(0), 0);
+    m_gearboxDroite.setSpeed(m_gearboxDroite.getKv().getVoltage(3, &m_va_right) / m_gearboxDroite.getBusVoltage(1), 1);
+    std::cout << forward << "          " << target_left_speed << "          " << m_va_left.m_speed << "   :   " << m_va_left.m_acceleration << "             " << (m_gearboxGauche.getKv().getVoltage(0, &m_va_left) +  m_gearboxDroite.getKv().getVoltage(0, &m_va_right)) / 2 << "      :     " << std::endl;
 }
 
 void Robot::TeleopPeriodic()
@@ -137,7 +180,9 @@ void Robot::TeleopPeriodic()
 #if XBOX_CONTROLLER
     Drive(-m_joystick.getY(0), m_joystick.getX(1));
 #else:
-    Drive(-m_joystick.getY(0), m_joystick.getZ(1));
+    m_va_max.m_acceleration = m_PowerEntry.GetDouble(0.0f);
+    DriveA(-m_joystick.getY(0), m_joystick.getZ(1));
+    std::cout << m_gearboxGauche.getExternalEncoderDistance() << std::endl;
 #endif
 #if XBOX_CONTROLLER
     if (m_joystick.getBButtonPressed() && (!m_override))
@@ -302,6 +347,38 @@ void Robot::DriveOld(double forward, double turn)
         characterization.setSpeedDriveOld(&m_gearboxGauche, &m_gearboxDroite);
     }
 }
+
+void Robot::DriveA(double forward, double turn)
+{
+    forward = Deadband(forward, 0.1);
+    turn = Deadband(turn, 0.1);
+    double v = forward * VMAX;
+    double w = turn * WMAX * m_turnAdjustFactor;
+
+    // w = m_drivetrain->CalculateTurn(forward, w);
+
+    double lwheel = v + (w * HALF_TRACKWIDTH);
+    double rwheel = v - (w * HALF_TRACKWIDTH);
+
+    double k;
+    k = 1.0 / (NMAX(VMAX, NMAX(NABS(lwheel), NABS(rwheel))));
+    lwheel *= k;
+    rwheel *= k;
+
+    m_targetLeftSpeed = lwheel * VMAX;
+    m_targetRightSpeed = rwheel * VMAX;
+}
+void Robot::DriveB()
+{
+    m_joystick.updateVelocityAndAcceleration(&m_va_left, &m_va_max, m_targetLeftSpeed, 0.005);
+    m_joystick.updateVelocityAndAcceleration(&m_va_right, &m_va_max, m_targetRightSpeed, 0.005);
+
+    m_gearboxDroite.setVoltage(units::volt_t(m_gearboxDroite.getKv().getVoltage(0, &m_va_left)), 0);
+    // m_gearboxDroite.setVoltage(units::volt_t(m_gearboxDroite.getKv().getVoltage(1, &m_va_left)), 1);
+    m_gearboxGauche.setVoltage(units::volt_t(m_gearboxGauche.getKv().getVoltage(2, &m_va_left)), 0);
+    // m_gearboxGauche.setVoltage(units::volt_t(m_gearboxGauche.getKv().getVoltage(3, &m_va_left)), 1);
+}
+
 
 #ifndef RUNNING_FRC_TESTS
 

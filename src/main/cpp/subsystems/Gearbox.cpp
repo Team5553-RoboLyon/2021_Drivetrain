@@ -1,4 +1,4 @@
-#pragma once
+
 
 #include "subsystems/Gearbox.h"
 
@@ -71,6 +71,11 @@ void Gearbox::resetExternalEncodeur(){
 void Gearbox::disableVoltageCompensation(){
     m_moteur0.DisableVoltageCompensation();
     m_moteur1.DisableVoltageCompensation();
+}
+
+void Gearbox::enableVoltageCompensation(double nominalVoltage){
+    m_moteur0.EnableVoltageCompensation(nominalVoltage);
+    m_moteur1.EnableVoltageCompensation(nominalVoltage);
 }
 
 void Gearbox::setIdleMode(rev::CANSparkMax::IdleMode mode){
@@ -187,6 +192,37 @@ int Gearbox::getExternalEncoderRaw(){
     return m_encodeurExterne.GetRaw();
 }
 
+void Gearbox::setVoltage(units::voltage::volt_t output, bool moteurID){
+    if(!moteurID){
+    m_moteur0.SetVoltage(output);
+}
+if (moteurID){
+    m_moteur1.SetVoltage(output);
+}
+}
+
+void Gearbox::setPeriodicFramePeriod(rev::CANSparkMaxLowLevel::PeriodicFrame frame, int periodMs, bool moteurID){
+    if(!moteurID){
+    m_moteur0.SetPeriodicFramePeriod(frame, periodMs);
+    }
+    if (moteurID){
+    m_moteur1.SetPeriodicFramePeriod(frame, periodMs);
+}
+}
+
+uint16_t Gearbox::getFaults(bool moteurID){
+    if(!moteurID){
+        return m_moteur0.GetFaults();
+    }
+    if (moteurID){
+        return m_moteur1.GetFaults();
+    }
+}
+
+
+
+
+
 //kinetic to voltage
 void KineticToVoltage::setMotorCoefficients(uint motorID, uint isBackward, double kv, double ka, double vintersept)
 {
@@ -198,7 +234,9 @@ void KineticToVoltage::setMotorCoefficients(uint motorID, uint isBackward, doubl
 double KineticToVoltage::getVoltage(uint motorID, const VA *pva)
 {
     int isBackward = (pva->m_speed < 0) ? 1 : 0;
-    if (pva->m_speed == 0)
+    if (-0.01 < pva->m_speed && pva->m_speed < 0.01)
+    {
         return 0;
+    }
     return k_lut[motorID][isBackward][0] * pva->m_speed + k_lut[motorID][isBackward][1] * pva->m_acceleration + k_lut[motorID][isBackward][2];
 }

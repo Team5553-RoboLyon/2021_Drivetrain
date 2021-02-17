@@ -3,6 +3,9 @@
 #include <frc/shuffleboard/Shuffleboard.h>
 #include "lib/CSVLogFile.h"
 #include "subsystems/Gearbox.h"
+#include "subsystems/Joystick.h"
+
+#include <functional>
 #include <frc/ADXRS450_Gyro.h>
 
 #define FLAG_ON(val, flag) ((val) |= (flag))
@@ -20,7 +23,7 @@
 #define TEST_TOTAL_NB (TEST_LOWVOLTAGE_NB + TEST_MEDIUMVOLTAGE_NB + TEST_HIGHVOLTAGE_NB)
 
 #define FLAG_TestSpecs_Done 1
-#define TIME_RAMP 0.6
+#define TIME_RAMP 0
 
 //struct for the current state of the test
 typedef struct TestSpecs TestSpecs;
@@ -49,12 +52,29 @@ public:
     void startTest();
     void stopTest(Gearbox *gearboxGauche, Gearbox *gearboxDroite);
     void setSpeedDriveOld(Gearbox *gearboxGauche, Gearbox *gearboxDroite);
-    void logStateSwitch(Gearbox *gearboxGauche, Gearbox *gearboxDroite, double *m_time0, double *m_ramp);
+
+    // template <typename Value, typename... Values>
+    // void log(Value value, Values... values);
+    // template <typename Value, typename... Values>
+    // void newLogFile(wpi::StringRef filePrefix, Value columnHeading, Values... columnHeadings);
+    template <typename Value, typename... Values>
+    void log(Value value, Values... values){
+        m_LogFileDriving->Log(value, values...);
+    }
+
+    template <typename Value, typename... Values>
+    void newLogFile(wpi::StringRef filePrefix, Value columnHeading, Values... columnHeadings){
+        delete m_LogFileDriving;
+        m_LogFileDriving = new CSVLogFile(filePrefix, columnHeading, columnHeadings...);
+    }
 
     void logData(Gearbox *gearboxGauche, Gearbox *gearboxDroite, frc::ADXRS450_Gyro *gyro, double ramp);
     void deleteLogFileDriving();
     void freeDriveLog(Gearbox *gearboxGauche, Gearbox *gearboxDroite);
     Characterization();
+    
+
+
 
 private:
 

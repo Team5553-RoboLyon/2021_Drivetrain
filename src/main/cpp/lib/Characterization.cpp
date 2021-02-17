@@ -188,52 +188,13 @@ void Characterization::setSpeedDriveOld(Gearbox *gearboxGauche, Gearbox *gearbox
     gearboxDroite->setSpeed(TestData[CurrentTestID].m_voltage / gearboxGauche->getBusVoltage(1), 1);
 }
 
-void Characterization::logStateSwitch(Gearbox *gearboxGauche, Gearbox *gearboxDroite, double *m_time0, double *m_ramp){
-    switch (m_logState)
-        {
-        case 1:
-            m_LogFile = new CSVLogFile(m_prefix, "encoderGetD", "encoderGetG", "encoderGetRawD", "encoderGetRawG", "Theorical Voltage", "BusVoltageD1", "BusVoltageD2", "BusVoltageG1", "BusVoltageG2", "AppliedOutputD1", "AppliedOutputD2", "AppliedOutputG1", "AppliedOutputG2", "currentD1", "currentD2", "currentG1", "currentG2", "rampActive");
-            m_LogFilename.SetString(m_LogFile->GetFileName());
-            gearboxDroite->resetExternalEncodeur();
-            gearboxGauche->resetExternalEncodeur();
-            m_logState = 2;
-            break;
+// template <typename Value, typename... Values>
+// void Characterization::log(Value value, Values... values){
+//     m_LogFileDriving->Log(value, values...);
+// }
 
-        case 2:
-            if (std::time(0) - *m_time0 < TIME_RAMP)
-            {
-                *m_ramp = 1;
-            }
-            else
-            {
-                *m_ramp = 0;
-            }
-            m_LogFile->Log( gearboxDroite->getExternalEncoder(),
-                            gearboxGauche->getExternalEncoder(),
-                            gearboxDroite->getExternalEncoderRaw(),
-                            gearboxGauche->getExternalEncoderRaw(),
-                            TestData[CurrentTestID].m_voltage,
-                            gearboxDroite->getBusVoltage(0),
-                            gearboxDroite->getBusVoltage(1),
-                            gearboxGauche->getBusVoltage(0),
-                            gearboxGauche->getBusVoltage(1),
-                            gearboxDroite->getAppliedOutput(0),
-                            gearboxDroite->getAppliedOutput(1),
-                            gearboxGauche->getAppliedOutput(0),
-                            gearboxGauche->getAppliedOutput(1),
-                            gearboxDroite->getOutputCurrent(0),
-                            gearboxDroite->getOutputCurrent(1),
-                            gearboxGauche->getOutputCurrent(0),
-                            gearboxGauche->getOutputCurrent(1),
-                            m_ramp);
-            break;
-
-        case 3:
-            delete m_LogFile;
-            m_logState = 0;
-            break;
-
-        default:
-            break;
-        }
-}
+// template <typename Value, typename... Values>
+// void Characterization::newLogFile(wpi::StringRef filePrefix, Value columnHeading, Values... columnHeadings){
+//     delete m_LogFileDriving;
+//     m_LogFileDriving = new CSVLogFile(filePrefix, columnHeading, columnHeadings...);
+// }

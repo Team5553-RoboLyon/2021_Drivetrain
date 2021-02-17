@@ -30,6 +30,8 @@ class Gearbox
   public:
     void resetExternalEncodeur();
     void disableVoltageCompensation();
+    void enableVoltageCompensation(double nominalVoltage);
+    void setPeriodicFramePeriod(rev::CANSparkMaxLowLevel::PeriodicFrame frame, int periodMs, bool moteurID);
     void setIdleMode(rev::CANSparkMax::IdleMode mode);
     void setInverted(bool invertion);
     Gearbox(int moteur0ID, int moteur1ID, unsigned int encodeurChannelA, unsigned int encodeurChannelB, bool isInverted, bool isLeft);
@@ -50,6 +52,9 @@ class Gearbox
     int getExternalEncoder();
     int getExternalEncoderRaw();
     KineticToVoltage getKv();
+    void setVoltage(units::voltage::volt_t output, bool moteurID);
+    uint16_t getFaults(bool moteurID);
+
 
 
   private:
